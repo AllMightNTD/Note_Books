@@ -6,8 +6,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Services\User\AuthService;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Http\Request;
 
 class AuthController extends BaseController
 {
@@ -29,13 +28,17 @@ class AuthController extends BaseController
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-    public function me()
+    public function me(Request $request)
     {
-        return $this->service->me();
+        return $this->service->me($request);
     }
 
     public function login(LoginRequest $request)
     {
         return $this->service->login($request);
     }
+
+    public function refresh(Request $request){
+        return $this -> service -> refresh($request);
+    }    
 }

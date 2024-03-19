@@ -29,6 +29,7 @@ class AuthRepository implements AuthInterface
 
     public function show(Request $request, $id)
     {
-        return $this->user::query()->where('id', $id)->first();
+         $data = User::query()->where('id' , $id) -> with('admin.information') -> first();
+         return $data;
     }
 }

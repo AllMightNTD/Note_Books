@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Route;
 Route::namespace('App\Http\Controllers\Api\User')->prefix('/user')->group(function () {
     Route::post('/register', 'AuthController@register');
     Route::post('login', 'AuthController@login');
-    Route::post('refresh', 'AuthController@refresh');
+    Route::post('reset-password', 'AuthController@resetPassword');
+    Route::post('refresh-token' , 'AuthController@refreshToken');
     Route::middleware(['auth:api'])->group(function () {
         Route::get('profile', 'AuthController@me');
         Route::post('logout', 'AuthController@logout');

@@ -38,7 +38,11 @@ class AuthController extends BaseController
         return $this->service->login($request);
     }
 
-    public function refresh(Request $request){
-        return $this -> service -> refresh($request);
+    public function refreshToken(){
+        return $this->service->refreshToken();
+    }
+
+    public function resetPassword(Request $request){
+        return $this -> service -> resetPassword($request);
     }    
 }

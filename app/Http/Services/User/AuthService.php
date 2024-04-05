@@ -36,7 +36,7 @@ class AuthService extends BaseService
             return response()->json(['message' => 'Successfully register']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Hệ thống đang bảo trì'], 500);
+            return response()->json(['message' => 'Hệ thống đang bảo trì'], 500);
         }
     }
 
@@ -45,7 +45,7 @@ class AuthService extends BaseService
         $credentials = $request->only('email', 'password');
 
         if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
         $refreshToken = $this->createRefreshToken();
         return $this->respondWithToken($token, $refreshToken);
@@ -62,7 +62,7 @@ class AuthService extends BaseService
                 ];
             }
         } catch (JWTException $e) {
-            return response()->json(['error' => 'User invalid'], 500);
+            return response()->json(['message' => 'User invalid'], 500);
         }
     }
 
@@ -72,7 +72,7 @@ class AuthService extends BaseService
             'access_token' => $token,
             'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60
+            'expires_in' => auth('api')->factory()->getTTL()
         ]);
     }
 
@@ -87,7 +87,28 @@ class AuthService extends BaseService
         return JWTAuth::getJWTProvider()->encode($data);
     }
 
-    public function refresh(Request $request){
+    public function refreshToken(){
+        $refreshToken = request() -> refresh_token;
+        try {
+            $decoded = JWTAuth::getJWTProvider()->decode($refreshToken);
+            $user = User::find($decoded['user_id']);
+            
+            if(!$user){
+                response()->json(['message' => 'User not found'], 404);
+            }
+
+            // Cần truyền vào access_token hiện tại vào Bearer...
+            auth('api') -> invalidate(true);
+            $token = auth('api')->login($user); // Tạo token mới
+            $refreshToken = $this->createRefreshToken();
+
+            return $this -> respondWithToken($token , $refreshToken);
+        } catch (JWTException $e) {
+            return response()->json(['message' => 'User invalid'], 500);
+        }
+    }
+
+    public function resetPassword(Request $request){
         $email = $request -> input('email');
         $user = User::query()->where('email', $email)->first();
         
@@ -126,4 +147,5 @@ class AuthService extends BaseService
         }
         return $password;
     }
+
 }

@@ -12,13 +12,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::namespace('App\Http\Controllers\Api\User')->prefix('/user')->group(function () {
-    Route::post('/register', 'AuthController@register');
-    Route::post('login', 'AuthController@login');
-    Route::post('reset-password', 'AuthController@resetPassword');
-    Route::post('refresh-token' , 'AuthController@refreshToken');
-    Route::middleware(['auth:api'])->group(function () {
-        Route::get('profile', 'AuthController@me');
-        Route::post('logout', 'AuthController@logout');
+$router->namespace('App\Http\Controllers\Cms')->prefix('/cms')->group(function ($router) {
+    $router->post('/register', 'AuthController@register');
+    $router->post('/login', 'AuthController@login');
+    $router->post('/reset-password', 'AuthController@resetPassword');
+    $router->post('/refresh-token' , 'AuthController@refreshToken');
+    $router->middleware(['auth:api'])->group(function ($router) {
+        $router->get('user', 'AuthController@index');
+        $router->get('profile', 'AuthController@me');
+        $router->post('logout', 'AuthController@logout');
+        $router->delete('user/{id}', 'AuthController@destroy');
     });
 });
+

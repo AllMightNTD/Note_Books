@@ -5,6 +5,7 @@ namespace App\Http\Services\User;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Services\BaseService;
 use App\Jobs\SendEmailJob;
+use App\Models\Admin;
 use App\Models\User;
 use App\Repositories\Interfaces\AuthInterface;
 use Illuminate\Http\Request;
@@ -27,6 +28,35 @@ class AuthService extends BaseService
         $this->model = new User();
     }
 
+    public function index(Request $request){
+        $user = $this -> auth -> index($request);
+        
+        return [
+            'data' => $user -> items(),
+            'total' => $user -> total()
+        ];
+    }
+
+    public function applySorting(Request $request){
+        $sortBy = $request -> get('sortBy');
+        $orderBy = $request -> get('orderyBy') ?? 'asc';
+        switch ($sortBy) {
+            case 'name':
+                $this->query->orderByRaw("name $orderBy");
+                break;
+            case 'email':
+                $this->query->orderByRaw("name $orderBy");
+                break;
+            case 'tel':
+                $this->query->orderByRaw("tel $orderBy");
+                break;
+            default:
+                $this->query->orderByRaw("created_at , desc");
+                break;
+       
+        }
+    }
+
     public function register(Request $request)
     {
         DB::beginTransaction();
@@ -42,10 +72,14 @@ class AuthService extends BaseService
 
     public function login(LoginRequest $request)
     {
+        $user = User::query()->where('email' , $request -> email) -> where('is_valid' , 1 ) -> first();
+        if(!$user){
+            return response()->json(['message' => 'User not valid'], 401);
+        }
         $credentials = $request->only('email', 'password');
 
         if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Wrong login name or password'], 401);
         }
         $refreshToken = $this->createRefreshToken();
         return $this->respondWithToken($token, $refreshToken);
@@ -110,7 +144,7 @@ class AuthService extends BaseService
 
     public function resetPassword(Request $request){
         $email = $request -> input('email');
-        $user = User::query()->where('email', $email)->first();
+        $user = User::query()->where('email', $email)->where('is_valid',1)->first();
         
         if(!$user){
             return response()->json(['message' => 'Not found'], 404);
@@ -146,6 +180,21 @@ class AuthService extends BaseService
             $password .= self::chars[mt_rand(0, $charNum - 1)];
         }
         return $password;
+    }
+
+    public function destroy(Request $request, $id, $isForceDelete = false)
+    {
+        $user = User::query()
+            ->where('id', $id)
+            ->update([
+                'is_valid' => 0,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+        return [
+            'message' => 'Delete user successfully',
+            'data' => [],
+        ];
     }
 
 }

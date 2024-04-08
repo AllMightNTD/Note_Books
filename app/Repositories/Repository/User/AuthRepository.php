@@ -16,9 +16,9 @@ class AuthRepository implements AuthInterface
         $this->user = $user;
     }
 
-    public function getArrayByCompany($company_id)
-    {
-        return $this->user::query()->where('company_id', $company_id)->pluck('name')->toArray();
+    public function index(Request $request){
+       $perPage = $request -> per_page;
+       return User::query()->orderBy('created_at', 'desc')->paginate($perPage);   
     }
 
     public function register(Request $request)
@@ -29,7 +29,8 @@ class AuthRepository implements AuthInterface
 
     public function show(Request $request, $id)
     {
-         $data = User::query()->where('id' , $id) -> with('admin.information') -> first();
+         $data = User::query()->where('id' , $id)->where('is_valid',1)-> first();
          return $data;
     }
+
 }

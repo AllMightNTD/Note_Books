@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api\User;
+namespace App\Http\Controllers\Cms;
 
-use App\Http\Controllers\Api\BaseController;
+use App\Http\Controllers\BaseController;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Services\User\AuthService;
@@ -38,11 +38,13 @@ class AuthController extends BaseController
         return $this->service->login($request);
     }
 
-    public function refreshToken(){
+    public function refreshToken()
+    {
         return $this->service->refreshToken();
     }
 
-    public function resetPassword(Request $request){
-        return $this -> service -> resetPassword($request);
-    }    
+    public function resetPassword(Request $request)
+    {
+        return $this->service->resetPassword($request);
+    }
 }

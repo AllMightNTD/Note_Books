@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Services;
-
 use Illuminate\Http\Request;
 
 abstract class BaseService
@@ -29,7 +28,7 @@ abstract class BaseService
         $item = $this->query->find($id);
         if (!$item) {
             return response()->json([
-                'message' => __('message.not_found'),
+                'message' => 'Not found',
             ], 404);
         }
 
@@ -49,7 +48,7 @@ abstract class BaseService
             $this->_softDelete($request, $id);
         }
 
-        return response()->json(['message' => __('message.delete_success')]);
+        return response()->json(['message' => 'Delete success']);
     }
 
     private function _softDelete(Request $request, $id)
@@ -64,7 +63,7 @@ abstract class BaseService
         $model->forceDelete();
     }
 
-    public function errorResponse($message = 'Hệ thống đang bảo trì !!!')
+    public function errorResponse($message = 'The system is maintenance !!!')
     {
         return response()
             ->json([
@@ -74,13 +73,17 @@ abstract class BaseService
 
     public function index(Request $request)
     {
-        if (method_exists($this, 'appendFilter')) {
-            $this->appendFilter();
-        }
         if (method_exists($this, 'applySorting')) {
             $this->applySorting();
         }
+        if (method_exists($this, 'applyFilter')) {
+            $this->applyFilter();
+        }
         $data = $this->addDefaultFilter();
+        if (method_exists($this, 'setTransformers') && $request->per_page != -1) {
+            $data = $this->setTransformers($data);
+        }
+
         return response()->json($data);
     }
 

@@ -32,8 +32,6 @@ class SendEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        // $email = new SendEmailTest();
         $this -> user -> notify(new SendPassword($this -> data));
-        // Mail::to($this->details['email'])->send($email);
     }
 }

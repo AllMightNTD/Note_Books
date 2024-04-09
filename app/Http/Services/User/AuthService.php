@@ -5,13 +5,16 @@ namespace App\Http\Services\User;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Services\BaseService;
 use App\Jobs\SendEmailJob;
-use App\Models\Admin;
 use App\Models\User;
 use App\Repositories\Interfaces\AuthInterface;
+use App\Transformers\AuthTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use League\Fractal\Manager;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use League\Fractal\Resource\Collection;
 
 class AuthService extends BaseService
 {
@@ -21,6 +24,7 @@ class AuthService extends BaseService
     public function __construct(AuthInterface $auth)
     {
         $this->auth = $auth;
+        parent::__construct();
     }
 
     public function setModel()
@@ -28,33 +32,53 @@ class AuthService extends BaseService
         $this->model = new User();
     }
 
-    public function index(Request $request){
-        $user = $this -> auth -> index($request);
-        
-        return [
-            'data' => $user -> items(),
-            'total' => $user -> total()
-        ];
+    public function applySorting(){
+        $sortBy = $this->request->get('sortBy');
+        $orderBy = $this->request->get('orderBy') ?? 'ASC';
+        if($sortBy){
+            switch ($sortBy) {
+                case 'name':
+                  $this -> query ->orderByRaw("name $orderBy");
+                  break;
+                case 'email':
+                  $this -> query ->orderByRaw("name $orderBy");
+                break;
+                case 'tel':
+                  $this -> query ->orderByRaw("tel $orderBy");
+                  break;
+                default:
+                  $this -> query ->orderByRaw("created_at , desc");
+                  break;
+           
+            }
+        }
     }
 
-    public function applySorting(Request $request){
-        $sortBy = $request -> get('sortBy');
-        $orderBy = $request -> get('orderyBy') ?? 'asc';
-        switch ($sortBy) {
-            case 'name':
-                $this->query->orderByRaw("name $orderBy");
-                break;
-            case 'email':
-                $this->query->orderByRaw("name $orderBy");
-                break;
-            case 'tel':
-                $this->query->orderByRaw("tel $orderBy");
-                break;
-            default:
-                $this->query->orderByRaw("created_at , desc");
-                break;
-       
+    public function applyFilter(){
+        $name = trim($this -> request->get('name'));
+        $email = $this -> request -> get('email');
+        $tel = $this -> request -> get('tel');
+        
+        if($name){
+            $this -> query -> where('name', 'LIKE', '%'.$name.'%');
         }
+        if($email){
+            $this -> query -> where('email', 'LIKE', '%'.$email.'%');     
+        }
+        if($email){
+            $this -> query -> where('tel', 'LIKE', '%'.$tel.'%');     
+        }
+    }
+
+    public function setTransformers($data)
+    {
+        $manager = new Manager();
+        $collection = $data->getCollection();
+
+        $resource = new Collection($collection, new AuthTransformer());
+        $resource->setPaginator(new IlluminatePaginatorAdapter($data));
+    
+        return $manager->createData($resource)->toArray();
     }
 
     public function register(Request $request)
@@ -196,5 +220,4 @@ class AuthService extends BaseService
             'data' => [],
         ];
     }
-
 }

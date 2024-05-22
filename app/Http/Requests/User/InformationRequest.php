@@ -4,7 +4,7 @@ namespace App\Http\Requests\User;
 
 use App\Http\Requests\BaseRequest;
 
-class LoginRequest extends BaseRequest
+class InformationRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,7 +25,7 @@ class LoginRequest extends BaseRequest
     {
         return [
             'email' => 'required|regex:/(.+)@(.+)\.(.+)/i',
-            'password' => 'required',
+            'name' => 'required',
         ];
     }
 
@@ -33,7 +33,7 @@ class LoginRequest extends BaseRequest
     {
         return [
             'email.required' => 'Email phải được nhập',
-            'password.required' => 'Password không được để trống',
+            'name.required' => 'Tên phải được nhập',
             'email.regex' => 'Email sai định dạng '
         ];
     }

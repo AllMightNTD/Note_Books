@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\User;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class RegisterRequest extends FormRequest
+class RegisterRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,7 @@ class RegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required | alpha | unique:users,name',
+            'name' => 'required| unique:users,name',
             'email' => 'required|regex:/(.+)@(.+)\.(.+)/i|unique:users,email',
             'password' => 'required',
         ];

@@ -55,6 +55,14 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
+        'gcs' => [
+            'driver' => 'gcs',
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'your-project-id'),
+            'key_file' => storage_path('app/google-cloud-storage.json'), // Path to your credentials JSON file
+            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', 'your-bucket'),
+            'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX', null),
+            'storage_api_uri' => env('GOOGLE_CLOUD_STORAGE_API_URI', null),
+        ],
 
     ],
 

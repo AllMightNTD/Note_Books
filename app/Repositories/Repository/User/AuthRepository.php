@@ -2,9 +2,11 @@
 
 namespace App\Repositories\Repository\User;
 
+use App\Models\Information;
 use App\Models\User;
 use App\Repositories\Interfaces\AuthInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class AuthRepository implements AuthInterface
@@ -29,7 +31,10 @@ class AuthRepository implements AuthInterface
 
     public function show(Request $request, $id)
     {
-         $data = User::query()->where('id' , $id) -> with('admin.information') -> first();
-         return $data;
+        return $this->user::query()->where('id', $id)->with('information')->first();
+    }
+
+    public function information($id){
+        return DB::table('information')->where('user_id' ,$id) ->first();
     }
 }

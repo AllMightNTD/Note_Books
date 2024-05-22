@@ -2,13 +2,17 @@
 
 namespace App\Http\Services\User;
 
+use App\Http\Requests\User\InformationRequest;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Services\BaseService;
 use App\Jobs\SendEmailJob;
+use App\Models\Information;
 use App\Models\User;
 use App\Repositories\Interfaces\AuthInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -46,6 +50,7 @@ class AuthService extends BaseService
 
         if (!$token = auth('api')->attempt($credentials)) {
             return response()->json(['message' => 'Unauthorized'], 401);
+            return $this -> errorResponse('Mật khẩu không đúng' , 403);
         }
         $refreshToken = $this->createRefreshToken();
         return $this->respondWithToken($token, $refreshToken);
@@ -69,10 +74,12 @@ class AuthService extends BaseService
     public function respondWithToken($token, $refreshToken)
     {
         return response()->json([
-            'access_token' => $token,
-            'refresh_token' => $refreshToken,
-            'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL()
+            'data' => [
+                'access_token' => $token,
+                'refresh_token' => $refreshToken,
+                'token_type' => 'bearer',
+                'expires_in' => auth('api')->factory()->getTTL()
+            ]
         ]);
     }
 
@@ -98,12 +105,13 @@ class AuthService extends BaseService
             }
 
             // Cần truyền vào access_token hiện tại vào Bearer...
-            auth('api') -> invalidate(true);
+            JWTAuth::invalidate(JWTAuth::getToken());
             $token = auth('api')->login($user); // Tạo token mới
             $refreshToken = $this->createRefreshToken();
 
             return $this -> respondWithToken($token , $refreshToken);
         } catch (JWTException $e) {
+            Log::info($e -> getMessage());
             return response()->json(['message' => 'User invalid'], 500);
         }
     }
@@ -146,6 +154,43 @@ class AuthService extends BaseService
             $password .= self::chars[mt_rand(0, $charNum - 1)];
         }
         return $password;
+    }
+
+    public function information(Request $request){
+        $id = auth('api') -> user() -> id;
+        return [
+            'data' => $this -> auth -> show($request , $id)
+        ];
+    }
+
+    public function updateInformation(Request $request)
+    {
+        $user = auth('api') -> user();
+        $id = auth('api') -> user() -> id;
+        
+        DB::beginTransaction();
+        try {
+          
+        $information = Information::updateOrCreate(
+            ['user_id' => $id], // Đúng cú pháp mảng
+            [
+                'sex' => $request->get('sex') ?? 0,
+                'birth_day' => $request->get('birth_day')
+            ]
+        );
+        $user -> name = $request->name;
+        $user -> email = $request -> email;
+        $user -> save();
+
+        DB::commit();
+        
+        return [
+            'data' => $information
+        ];
+        } catch (\Throwable $th) {
+            //throw $th;
+            DB::rollBack();
+        }
     }
 
 }

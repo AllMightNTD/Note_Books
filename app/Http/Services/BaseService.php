@@ -64,11 +64,11 @@ abstract class BaseService
         $model->forceDelete();
     }
 
-    public function errorResponse($message = 'Hệ thống đang bảo trì !!!')
+    public function errorResponse($message = 'Hệ thống đang bảo trì !!!' , $code = 500)
     {
         return response()
             ->json([
                 'message' => $message,
-            ], 500);
+            ], $code);
     }
 }

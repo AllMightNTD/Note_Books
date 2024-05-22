@@ -12,9 +12,8 @@ class Information extends Model
     protected $table = 'information';
 
     protected $fillable = [
-        'email',
-        'birthday',
-        'sex',
-        'address',
+        'user_id',
+        'birth_day',
+        'sex'
     ];
 }

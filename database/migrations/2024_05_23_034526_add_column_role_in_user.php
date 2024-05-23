@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admins', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('information_id');
-            $table->foreign('information_id')->references('id')->on('information');
-            $table->timestamps();
-        }); 
+        Schema::table('users', function (Blueprint $table) {
+            //
+            $table -> tinyInteger('role') -> default(0);
+        });
     }
 
     /**
@@ -24,7 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
-        Schema::dropIfExists('admins');
+        Schema::table('users', function (Blueprint $table) {
+            //
+            $table -> dropColumn('role');
+        });
     }
 };

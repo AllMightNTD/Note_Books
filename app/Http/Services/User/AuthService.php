@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -49,7 +50,6 @@ class AuthService extends BaseService
         $credentials = $request->only('email', 'password');
 
         if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
             return $this -> errorResponse('Mật khẩu không đúng' , 403);
         }
         $refreshToken = $this->createRefreshToken();
@@ -104,8 +104,6 @@ class AuthService extends BaseService
                 response()->json(['message' => 'User not found'], 404);
             }
 
-            // Cần truyền vào access_token hiện tại vào Bearer...
-            JWTAuth::invalidate(JWTAuth::getToken());
             $token = auth('api')->login($user); // Tạo token mới
             $refreshToken = $this->createRefreshToken();
 
@@ -190,6 +188,38 @@ class AuthService extends BaseService
         } catch (\Throwable $th) {
             //throw $th;
             DB::rollBack();
+        }
+    }
+
+    public function changePassword(Request $request){
+        $request->validate([
+            'old_password' => 'required',
+        ]);
+
+        $user = auth('api') -> user();
+
+        if (!Hash::check($request->old_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'old_password' => ['Mật khẩu cũ không đúng']
+            ]);
+        }
+        $newPassword = Hash::make($request -> new_password);
+
+        DB::beginTransaction();
+        try {
+
+            $user -> password = $newPassword;
+            $user -> save();
+
+            DB::commit();
+
+            return [
+                'data' => [],
+                'message' => 'Cập nhật mật khẩu thành công'
+            ];
+        } catch (\Exception $e) {
+            Log::info($e -> getMessage());
+            return $this -> errorResponse();
         }
     }
 

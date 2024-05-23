@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\Api\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,3 +27,12 @@ Route::namespace('App\Http\Controllers\Api\User')->prefix('/user')->group(functi
         Route::put('change-password', 'AuthController@changePassword');
     });
 });
+
+Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(function () {
+    Route::middleware(['auth:api'])->group(function () {
+        Route::middleware(['role:admin'])->group(function () {
+            Route::apiResource('users', UserController::class);
+        });
+    });
+});
+

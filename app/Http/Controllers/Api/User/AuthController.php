@@ -55,9 +55,9 @@ class AuthController extends BaseController
         return $this->service->updateInformation($request);
     }
 
-    // public function changePassword(Request $request){
-    //     return $this->service->changePassword($request);
-    // }
+    public function changePassword(Request $request){
+        return $this->service->changePassword($request);
+    }
 
     public function refreshToken(Request $request){
         return $this->service->refreshToken($request);

@@ -3,7 +3,7 @@
 namespace App\Http\Services;
 
 use Illuminate\Http\Request;
-
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 abstract class BaseService
 {
     protected $model;
@@ -243,6 +243,13 @@ abstract class BaseService
         }
 
         return response()->json($response, $code);
+    }
+
+    public function uploadImage($file) {
+        $uploadedFileUrl = Cloudinary::upload($file->getRealPath())->getSecurePath();
+        $urlPath = parse_url($uploadedFileUrl, PHP_URL_PATH);
+        $relativePath = ltrim($urlPath, '/');
+        return $relativePath;
     }
 
 }

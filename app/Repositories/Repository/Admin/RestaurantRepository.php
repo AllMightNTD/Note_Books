@@ -20,4 +20,8 @@ class RestaurantRepository implements RestaurantInterface {
     public function show(Request $request, $id){
         return $this -> restaurant::query()-> where('id', $id) -> first();
     }
+
+    public function allCategory(){
+        return $this -> restaurant -> get();
+    }
 }

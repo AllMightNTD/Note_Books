@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Requests\Admin\DishRequest;
 use App\Http\Services\Admin\DishService;
 use Illuminate\Http\Request;
 
@@ -13,12 +14,12 @@ class DishController extends BaseController
         $this->service = $dishService;
     }
 
-    public function store(Request $request)
+    public function store(DishRequest $request)
     {
         return $this->service->store($request);
     }
 
-    public function update(Request $request, $id)
+    public function update(DishRequest $request, $id)
     {
         return $this->service->update($request, $id);
     }

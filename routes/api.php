@@ -41,6 +41,10 @@ Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(func
             Route::apiResource('file' , FileController::class);
             Route::apiResource('dishs' , DishController::class);
 
+            Route::prefix('key-value')->group(function () {
+                Route::get('categories', [CategoryController::class, 'getAllCategoriesKeyValue']);
+                Route::get('restaurants', [RestaurantController::class, 'getAllRestaurantKeyValue']);
+            });
         });
     });
 });

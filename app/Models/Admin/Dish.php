@@ -15,6 +15,9 @@ class Dish extends Model
         'name',
         'thumb_nail',
         'price_min',
-        'price_max'
+        'price_max',
+        'category_id',
+        'restaurant_id',
+        'cloud_id'
     ];
 }

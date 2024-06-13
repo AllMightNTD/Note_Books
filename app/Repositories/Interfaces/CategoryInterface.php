@@ -2,11 +2,11 @@
 
 namespace App\Repositories\Interfaces;
 
-use Illuminate\Http\Request;
-
-interface RestaurantInterface extends BaseInterface
+interface CategoryInterface extends BaseInterface
 {
     public function store($data);
+
+    public function update($data, $id);
 
     public function allCategory();
 }

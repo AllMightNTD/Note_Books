@@ -246,10 +246,15 @@ abstract class BaseService
     }
 
     public function uploadImage($file) {
-        $uploadedFileUrl = Cloudinary::upload($file->getRealPath())->getSecurePath();
+        $uploadResult = Cloudinary::upload($file->getRealPath());
+        $uploadedFileUrl = $uploadResult->getSecurePath();
+        $publicId = $uploadResult -> getPublicId();
         $urlPath = parse_url($uploadedFileUrl, PHP_URL_PATH);
         $relativePath = ltrim($urlPath, '/');
-        return $relativePath;
+        return [
+            'url' => $relativePath,
+            'cloud_id' => $publicId
+        ];
     }
 
 }

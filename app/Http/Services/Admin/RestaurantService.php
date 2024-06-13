@@ -25,7 +25,9 @@ class RestaurantService extends BaseService {
     }
 
     public function store(Request $request){
-        $thumb_nail = $this -> uploadImage($request -> file('file'));
+        $file = $this -> uploadImage($request -> file('file'));
+        $thumb_nail = $file['url'];
+        $cloudId = $file['cloud_id'];
         $name = $request -> name;
         $address = $request -> address;
         $contact_phone = $request -> contact_phone;
@@ -33,7 +35,8 @@ class RestaurantService extends BaseService {
             'name' => $name,
             'address' => $address,
             'thumb_nail' => $thumb_nail,
-            'contact_phone' => $contact_phone
+            'contact_phone' => $contact_phone,
+            'cloud_id' => $cloudId
         ];
 
         DB::beginTransaction();
@@ -44,7 +47,24 @@ class RestaurantService extends BaseService {
         } catch (\Exception $e) {
             Log::info($e -> getMessage());
             DB::rollBack();
-            return response()->json(['message' => 'Hệ thống đang bảo trì'], 500);
+            return $this -> errorResponse();
         }
+    }
+
+    public function getAllCategoriesKeyValue(){
+
+        $categories = $this->restaurantRepo->allCategory();
+        $formattedCategories = [];
+
+        if($categories->isNotEmpty()){
+            foreach ($categories as $category) {
+                $formattedCategories[] = [
+                    "label" => $category->name,
+                    "value" => $category->id
+                ];
+            }
+        }
+
+        return $formattedCategories;
     }
 }

@@ -3,7 +3,11 @@
 namespace App\Providers;
 
 use App\Repositories\Interfaces\AuthInterface;
+use App\Repositories\Interfaces\CategoryInterface;
+use App\Repositories\Interfaces\DishInterface;
 use App\Repositories\Interfaces\RestaurantInterface;
+use App\Repositories\Repository\Admin\CategoryRepository;
+use App\Repositories\Repository\Admin\DishRepository;
 use App\Repositories\Repository\Admin\RestaurantRepository;
 use App\Repositories\Repository\User\AuthRepository as UserAuthRepository;
 use Illuminate\Support\ServiceProvider;
@@ -18,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
         //
         $this->app->bind(AuthInterface::class, UserAuthRepository::class);
         $this->app->bind(RestaurantInterface::class, RestaurantRepository::class);
+        $this->app->bind(CategoryInterface::class , CategoryRepository::class);
+        $this->app->bind(DishInterface::class , DishRepository::class);
     }
 
     /**

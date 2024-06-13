@@ -21,7 +21,7 @@ class AccountSeeder extends Seeder {
             ],
             [
                 'name' => 'Admin',
-                'email' => 'adminfastgo5@gmail.com.com',
+                'email' => 'adminfastgo5@gmail.com',
                 'password' => bcrypt("admin@123"),
                 'role' => 1,
                 'created_at' => date('Y-m-d H:i:s'),

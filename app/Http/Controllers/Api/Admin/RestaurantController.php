@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Requests\Admin\RestaurantRequest;
 use App\Http\Services\Admin\RestaurantService;
 use Illuminate\Http\Request;
 
@@ -13,17 +14,17 @@ class RestaurantController extends BaseController
         $this->service = $restaurantService;
     }
 
-    public function store(Request $request)
+    public function store(RestaurantRequest $request)
     {
         return $this->service->store($request);
     }
 
-    public function update(Request $request, $id)
+    public function update(RestaurantRequest $request, $id)
     {
         return $this->service->update($request, $id);
     }
 
-    public function getAllCategoriesKeyValue(){
-        return $this->service->getAllCategoriesKeyValue();
+    public function getAllRestaurantKeyValue(){
+        return $this->service->getAllRestaurantKeyValue();
     }
 }

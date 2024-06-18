@@ -14,6 +14,7 @@ class Information extends Model
     protected $fillable = [
         'user_id',
         'birth_day',
-        'sex'
+        'sex',
+        'contact_phone'
     ];
 }

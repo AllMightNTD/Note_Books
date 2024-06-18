@@ -173,7 +173,8 @@ class AuthService extends BaseService
             ['user_id' => $id], // Đúng cú pháp mảng
             [
                 'sex' => $request->get('sex') ?? 0,
-                'birth_day' => $request->get('birth_day')
+                'birth_day' => $request->get('birth_day'),
+                'contact_phone' => $request -> get('contact_phone')
             ]
         );
         $user -> name = $request->name;

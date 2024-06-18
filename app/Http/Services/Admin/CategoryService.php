@@ -4,6 +4,7 @@ namespace App\Http\Services\Admin;
 
 use App\Http\Services\BaseService;
 use App\Models\Admin\Category;
+use App\Models\Admin\Dish;
 use App\Repositories\Interfaces\CategoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -70,6 +71,21 @@ class CategoryService extends BaseService {
             }
         }
 
-        return $formattedCategories;
+        return [
+            'data' =>  $formattedCategories
+        ];
+    }
+
+    public function destroy(Request $request, $id, $isForceDelete = false){
+        $dish = Dish::whereHas('category', function ($q) use ($id) {
+            $q->where('id', $id);
+        })->exists();
+        if($dish){
+            return $this -> sendError('Đã tồn tại món ăn ứng với danh mục này , không thể xóa !!!' , [] , 403);
+        }else{
+            $model = $this->query->findOrFail($id);
+            $model->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
     }
 }

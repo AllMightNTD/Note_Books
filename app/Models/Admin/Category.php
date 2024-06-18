@@ -14,4 +14,8 @@ class Category extends Model
     protected $fillable = [
         'name'
     ];
+
+    public function dish(){
+        return $this -> hasMany(Dish::class , 'category_id' , 'id');
+    }
 }

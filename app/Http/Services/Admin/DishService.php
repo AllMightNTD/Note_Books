@@ -7,6 +7,7 @@ use App\Models\Admin\Dish;
 use App\Repositories\Interfaces\DishInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DishService extends BaseService {
 
@@ -31,12 +32,16 @@ class DishService extends BaseService {
 
         $data['thumb_nail'] = $thumbNail;
         $data['cloud_id'] = $cloudId;
+        $data['price_min'] = (double)$data['price_min'];
+        $data['price_max'] = (double)$data['price_max'];
+       
         DB::beginTransaction();
         try {
             $this -> dishRepo -> store($data);
             DB::commit();
             return [];
         } catch (\Exception $e) {
+            Log::info($e -> getMessage());
             DB::rollBack();
             return $this -> errorResponse();
         }

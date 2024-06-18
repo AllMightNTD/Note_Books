@@ -31,12 +31,14 @@ class RestaurantService extends BaseService {
         $name = $request -> name;
         $address = $request -> address;
         $contact_phone = $request -> contact_phone;
+        $email = $request -> email;
         $data = [
             'name' => $name,
             'address' => $address,
             'thumb_nail' => $thumb_nail,
             'contact_phone' => $contact_phone,
-            'cloud_id' => $cloudId
+            'cloud_id' => $cloudId,
+            'email'=> $email
         ];
 
         DB::beginTransaction();
@@ -51,7 +53,7 @@ class RestaurantService extends BaseService {
         }
     }
 
-    public function getAllCategoriesKeyValue(){
+    public function getAllRestaurantKeyValue(){
 
         $categories = $this->restaurantRepo->allCategory();
         $formattedCategories = [];
@@ -65,6 +67,8 @@ class RestaurantService extends BaseService {
             }
         }
 
-        return $formattedCategories;
+        return [
+            'data' => $formattedCategories
+        ];
     }
 }

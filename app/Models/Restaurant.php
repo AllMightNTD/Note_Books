@@ -16,7 +16,9 @@ class Restaurant extends Model
         'thumb_nail',
         'address',
         'contact_phone',
-        'cloud_id'
+        'cloud_id',
+        'email',
+        'type_of_restaurant'
     ];
 
     public $appends = ['thumbnail_origin'];

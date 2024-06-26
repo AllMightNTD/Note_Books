@@ -46,4 +46,13 @@ class DishService extends BaseService {
             return $this -> errorResponse();
         }
     }
+
+    public function applyFilter()
+    {
+        $category_id = $this->request->get('category_id');
+    
+        if ($category_id) {
+           $this -> query -> where('category_id' , $category_id);
+        }
+    }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\DishController;
 use App\Http\Controllers\Api\Admin\FileController;
+use App\Http\Controllers\Api\Admin\OpeningHourController;
 use App\Http\Controllers\Api\Admin\RestaurantController;
 use App\Http\Controllers\Api\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -34,15 +35,21 @@ Route::namespace('App\Http\Controllers\Api\User')->prefix('/user')->group(functi
 
 Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(function () {
     Route::middleware(['auth:api'])->group(function () {
+        Route::apiResource('categories' , CategoryController::class);
+        Route::prefix('key-value')->group(function () {
+            Route::get('categories', [CategoryController::class, 'getAllCategoriesKeyValue']);
+        });
         Route::middleware(['role:admin'])->group(function () {
             Route::apiResource('users', UserController::class);
-            Route::apiResource('categories' , CategoryController::class);
-            Route::apiResource('restaurants' , RestaurantController::class);
+            Route::get('restaurants', 'RestaurantController@index');
+            Route::post('restaurants', 'RestaurantController@store');
+            Route::post('restaurants/{id}', 'RestaurantController@update');
+            Route::get('restaurants/{id}', 'RestaurantController@show');       
             Route::apiResource('file' , FileController::class);
             Route::apiResource('dishs' , DishController::class);
+            Route::apiResource('opening-hours' , OpeningHourController::class);
 
             Route::prefix('key-value')->group(function () {
-                Route::get('categories', [CategoryController::class, 'getAllCategoriesKeyValue']);
                 Route::get('restaurants', [RestaurantController::class, 'getAllRestaurantKeyValue']);
             });
         });

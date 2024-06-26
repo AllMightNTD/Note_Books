@@ -78,7 +78,8 @@ class AuthService extends BaseService
                 'access_token' => $token,
                 'refresh_token' => $refreshToken,
                 'token_type' => 'bearer',
-                'expires_in' => auth('api')->factory()->getTTL()
+                'expires_in' => auth('api')->factory()->getTTL(),
+                'user' => auth('api') -> user()
             ]
         ]);
     }
@@ -172,9 +173,10 @@ class AuthService extends BaseService
         $information = Information::updateOrCreate(
             ['user_id' => $id], // Đúng cú pháp mảng
             [
-                'sex' => $request->get('sex') ?? 0,
-                'birth_day' => $request->get('birth_day'),
-                'contact_phone' => $request -> get('contact_phone')
+                'sex' => $request->sex ?? 0,
+                'birth_day' => $request->birth_day,
+                'contact_phone' => $request -> contact_phone,
+                'address' => $request -> address
             ]
         );
         $user -> name = $request->name;

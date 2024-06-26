@@ -15,6 +15,7 @@ class Information extends Model
         'user_id',
         'birth_day',
         'sex',
-        'contact_phone'
+        'contact_phone',
+        'address'
     ];
 }

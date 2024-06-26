@@ -257,4 +257,8 @@ abstract class BaseService
         ];
     }
 
+    public function deleteImage($cloudId){
+        return Cloudinary::destroy($cloudId);
+    }
+
 }

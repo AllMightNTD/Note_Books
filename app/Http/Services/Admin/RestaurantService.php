@@ -25,21 +25,10 @@ class RestaurantService extends BaseService {
     }
 
     public function store(Request $request){
+        $data = $request->only($this->model->getFillable());
         $file = $this -> uploadImage($request -> file('file'));
-        $thumb_nail = $file['url'];
-        $cloudId = $file['cloud_id'];
-        $name = $request -> name;
-        $address = $request -> address;
-        $contact_phone = $request -> contact_phone;
-        $email = $request -> email;
-        $data = [
-            'name' => $name,
-            'address' => $address,
-            'thumb_nail' => $thumb_nail,
-            'contact_phone' => $contact_phone,
-            'cloud_id' => $cloudId,
-            'email'=> $email
-        ];
+        $data['thumb_nail'] = $file['url'];;
+        $data['cloud_id'] = $file['cloud_id'];
 
         DB::beginTransaction();
         try {
@@ -70,5 +59,29 @@ class RestaurantService extends BaseService {
         return [
             'data' => $formattedCategories
         ];
+    }
+
+    public function update(Request $request , $id){
+        $data = $request->only($this->model->getFillable());
+        $restaurant = $this -> query -> find($id);
+        $cloudIdOld = $request -> cloud_id_old;
+        DB::beginTransaction();
+        try {
+            if($cloudIdOld){
+                $this -> deleteImage($cloudIdOld);
+            }
+            $file = $this -> uploadImage($request -> file('file'));
+            $data['thumb_nail'] = $file['url'];
+            $data['cloud_id'] = $file['cloud_id'];
+                
+            $restaurant -> fill($data);
+            $restaurant -> save();
+            DB::commit();
+            return [];
+        } catch (\Exception $e) {
+            Log::info($e -> getMessage());
+            DB::rollBack();
+            return $this -> errorResponse();
+        }
     }
 }

@@ -47,6 +47,36 @@ class DishService extends BaseService {
         }
     }
 
+    public function update(Request $request , $id){
+        $dish = $this -> query -> find($id);
+        $data = $request->only($this->model->getFillable());
+        $cloudIdOld = $request -> cloud_id_old;
+        DB::beginTransaction();
+        try {
+            if($cloudIdOld && $request -> file('file')){
+                $this -> deleteImage($cloudIdOld);
+            }
+            if($request -> file('file')){
+                $file = $this -> uploadImage($request -> file('file'));
+                $thumbNail = $file['url'];
+                $cloudId = $file['cloud_id'];
+                $data['thumb_nail'] = $thumbNail;
+                $data['cloud_id'] = $cloudId;
+            }
+            $data['price_min'] = (double)$data['price_min'];
+            $data['price_max'] = (double)$data['price_max'];
+
+            $dish -> fill($data);
+            $dish -> save();
+            DB::commit();
+            return [];
+        } catch (\Exception $e) {
+            Log::info($e -> getMessage());
+            DB::rollBack();
+            return $this -> errorResponse();
+        }
+    }
+
     public function applyFilter()
     {
         $category_id = $this->request->get('category_id');

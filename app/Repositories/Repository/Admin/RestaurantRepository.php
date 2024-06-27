@@ -14,7 +14,7 @@ class RestaurantRepository implements RestaurantInterface {
     }
 
     public function store($data){
-        return $this -> restaurant::query() -> create($data);
+        return $this -> restaurant::query() -> insertGetId($data);
     }
 
     public function show(Request $request, $id){

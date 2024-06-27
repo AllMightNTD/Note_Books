@@ -43,10 +43,13 @@ Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(func
             Route::apiResource('users', UserController::class);
             Route::get('restaurants', 'RestaurantController@index');
             Route::post('restaurants', 'RestaurantController@store');
-            Route::post('restaurants/{id}', 'RestaurantController@update');
+            Route::post('restaurants/{id}/up-date', 'RestaurantController@update');
             Route::get('restaurants/{id}', 'RestaurantController@show');       
             Route::apiResource('file' , FileController::class);
-            Route::apiResource('dishs' , DishController::class);
+            Route::get('dishs', 'DishController@index');
+            Route::post('dishs', 'DishController@store');
+            Route::post('dishs/{id}/up-date', 'DishController@update');
+            Route::get('dishs/{id}', 'DishController@show');
             Route::apiResource('opening-hours' , OpeningHourController::class);
 
             Route::prefix('key-value')->group(function () {

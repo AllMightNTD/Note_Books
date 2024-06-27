@@ -14,9 +14,9 @@ class RestaurantController extends BaseController
         $this->service = $restaurantService;
     }
 
-    public function store(Request $request)
+    public function store(RestaurantRequest $request)
     {
-        return $request -> all();
+        return $this->service->store($request);
     }
 
     public function update(RestaurantRequest $request, $id)

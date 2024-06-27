@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Admin\Regulation;
+use App\Models\Admin\SummaryRestaurant;
+use App\Models\Admin\Utilties;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,5 +31,17 @@ class Restaurant extends Model
         if ($this->thumb_nail) {
             return config('services.cloudinary.url') . $this->thumb_nail;
         }
+    }
+
+    public function summaryRestaurant(){
+        return $this -> hasOne(SummaryRestaurant::class , 'restaurant_id' , 'id');
+    }
+
+    public function regulations(){
+        return $this -> hasOne(Regulation::class , 'restaurant_id' , 'id');
+    }
+
+    public function utilties(){
+        return $this -> hasOne(Utilties::class , 'restaurant_id' , 'id');
     }
 }

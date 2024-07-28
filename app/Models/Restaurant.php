@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Admin\Dish;
+use App\Models\Admin\OpeningHour;
 use App\Models\Admin\Regulation;
 use App\Models\Admin\SummaryRestaurant;
 use App\Models\Admin\Utilties;
@@ -16,32 +18,39 @@ class Restaurant extends Model
 
     protected $fillable = [
         'name',
-        'thumb_nail',
         'address',
         'contact_phone',
-        'cloud_id',
         'email',
         'type_of_restaurant'
     ];
 
-    public $appends = ['thumbnail_origin'];
-
-    public function getThumbNailOriginAttribute()
+    public function summaryRestaurant()
     {
-        if ($this->thumb_nail) {
-            return config('services.cloudinary.url') . $this->thumb_nail;
-        }
+        return $this->hasOne(SummaryRestaurant::class, 'restaurant_id', 'id');
     }
 
-    public function summaryRestaurant(){
-        return $this -> hasOne(SummaryRestaurant::class , 'restaurant_id' , 'id');
+    public function regulations()
+    {
+        return $this->hasOne(Regulation::class, 'restaurant_id', 'id');
     }
 
-    public function regulations(){
-        return $this -> hasOne(Regulation::class , 'restaurant_id' , 'id');
+    public function utilties()
+    {
+        return $this->hasOne(Utilties::class, 'restaurant_id', 'id');
     }
 
-    public function utilties(){
-        return $this -> hasOne(Utilties::class , 'restaurant_id' , 'id');
+    public function images()
+    {
+        return $this->hasMany(RestaurantImage::class, 'restaurant_id', 'id');
+    }
+
+    public function dishs()
+    {
+        return $this->hasMany(Dish::class, 'restaurant_id', 'id');
+    }
+
+    public function openingHours()
+    {
+        return $this->hasOne(OpeningHour::class, 'restaurant_id', 'id');
     }
 }

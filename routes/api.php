@@ -2,10 +2,13 @@
 
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\DishController;
+use App\Http\Controllers\Api\User\DishUser;
 use App\Http\Controllers\Api\Admin\FileController;
 use App\Http\Controllers\Api\Admin\OpeningHourController;
 use App\Http\Controllers\Api\Admin\RestaurantController;
+use App\Http\Controllers\Api\User\RestaurantUserController;
 use App\Http\Controllers\Api\Admin\UserController;
+use App\Http\Controllers\Api\DishHomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,23 +22,30 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// User
 Route::namespace('App\Http\Controllers\Api\User')->prefix('/user')->group(function () {
     Route::post('register', 'AuthController@register');
     Route::post('login', 'AuthController@login');
     Route::post('reset-password', 'AuthController@resetPassword');
-    Route::post('refresh-token' , 'AuthController@refreshToken');
+    Route::post('refresh-token', 'AuthController@refreshToken');
     Route::middleware(['auth:api'])->group(function () {
         Route::get('me', 'AuthController@me');
         Route::post('logout', 'AuthController@logout');
         Route::get('information', 'AuthController@information');
-        Route::put('information-update' , 'AuthController@updateInformation');
+        Route::put('information-update', 'AuthController@updateInformation');
         Route::put('change-password', 'AuthController@changePassword');
     });
 });
 
+// Home
+Route::middleware(['auth:api'])->group(function () {
+    Route::get('/dish-home/{id}', [DishHomeController::class, 'show']);
+});
+
+// Admin
 Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(function () {
     Route::middleware(['auth:api'])->group(function () {
-        Route::apiResource('categories' , CategoryController::class);
+        Route::apiResource('categories', CategoryController::class);
         Route::prefix('key-value')->group(function () {
             Route::get('categories', [CategoryController::class, 'getAllCategoriesKeyValue']);
         });
@@ -44,13 +54,13 @@ Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(func
             Route::get('restaurants', 'RestaurantController@index');
             Route::post('restaurants', 'RestaurantController@store');
             Route::post('restaurants/{id}/up-date', 'RestaurantController@update');
-            Route::get('restaurants/{id}', 'RestaurantController@show');       
-            Route::apiResource('file' , FileController::class);
+            Route::get('restaurants/{id}', 'RestaurantController@show');
+            Route::apiResource('file', FileController::class);
             Route::get('dishs', 'DishController@index');
             Route::post('dishs', 'DishController@store');
-            Route::post('dishs/{id}/up-date', 'DishController@update');
             Route::get('dishs/{id}', 'DishController@show');
-            Route::apiResource('opening-hours' , OpeningHourController::class);
+            Route::post('dishs/{id}/up-date', 'DishController@update');
+            Route::apiResource('opening-hours', OpeningHourController::class);
 
             Route::prefix('key-value')->group(function () {
                 Route::get('restaurants', [RestaurantController::class, 'getAllRestaurantKeyValue']);
@@ -58,4 +68,3 @@ Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(func
         });
     });
 });
-

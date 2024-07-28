@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Repositories\Repository\Admin;
 
 use App\Models\Admin\Dish;
 use App\Repositories\Interfaces\DishInterface;
 use Illuminate\Http\Request;
 
-class DishRepository implements DishInterface {
+class DishRepository implements DishInterface
+{
 
     protected $dish;
 
@@ -14,12 +16,14 @@ class DishRepository implements DishInterface {
         $this->dish = $dish;
     }
 
-    public function store($data){
-        return $this -> dish::query() -> create($data);
+    public function store($data)
+    {
+        return $this->dish::query()->insertGetId($data);
     }
 
-    public function show(Request $request, $id){
-        return $this -> dish::query()-> where('id', $id) -> first();
+    public function show(Request $request, $id)
+    {
+        return $this->dish::query()->where('id', $id)->first();
     }
 
     public function update($data, $id)
@@ -31,7 +35,8 @@ class DishRepository implements DishInterface {
         return $category;
     }
 
-    public function allCategory(){
-        return $this -> dish -> get();
+    public function allCategory()
+    {
+        return $this->dish->get();
     }
 }

@@ -21,21 +21,24 @@ class OpeningHour extends Model
         'restaurant_id'
     ];
 
-    public $appends = ['day_of_week_name' , 'restaurant_name'];
+    public $appends = ['day_of_week_name', 'restaurant_name'];
 
-    public function restaurant(){
-        return $this -> hasOne(Restaurant::class , 'restaurant_id' , 'id');
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class, 'restaurant_id', 'id');
     }
 
-    public function getDayOfWeekNameAttribute(){
+    public function getDayOfWeekNameAttribute()
+    {
         if ($this->day_in_week_id) {
-            return DB::table('day_in_weeks')->where('id' , $this -> day_in_week_id) -> first() -> name;
+            return DB::table('day_in_weeks')->where('id', $this->day_in_week_id)->first()->name;
         }
     }
 
-    public function getRestaurantNameAttribute(){
+    public function getRestaurantNameAttribute()
+    {
         if ($this->restaurant_id) {
-            return DB::table('restaurants')->where('id' , $this -> restaurant_id) -> first() -> name;
+            return DB::table('restaurants')->where('id', $this->restaurant_id)->first()->name;
         }
     }
 }

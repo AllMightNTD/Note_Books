@@ -7,6 +7,7 @@ use App\Models\Admin\Regulation;
 use App\Models\Admin\SummaryRestaurant;
 use App\Models\Admin\Utilties;
 use App\Models\Restaurant;
+use App\Models\RestaurantImage;
 use App\Repositories\Interfaces\RestaurantInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,13 +29,17 @@ class RestaurantService extends BaseService
         $this->model = new Restaurant();
     }
 
+    public function applySorting()
+    {
+        return $this->query->with(['images' => function ($query) {
+            $query->select(['image', 'restaurant_id']);
+        }]);
+    }
     public function store(Request $request)
     {
+        $imageData = [];
         // Restaurant
         $data = $request->only($this->model->getFillable());
-        $file = $this->uploadImage($request->file('file'));
-        $data['thumb_nail'] = $file['url'];;
-        $data['cloud_id'] = $file['cloud_id'];
 
         // Tóm tắt chi tiết
         $summary = new SummaryRestaurant();
@@ -51,13 +56,24 @@ class RestaurantService extends BaseService
         DB::beginTransaction();
         try {
             $restaurantId = $this->restaurantRepo->store($data);
+            if ($request->hasfile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $data = $this->uploadImage($file);
+                    $imageData[] = [
+                        'image' => $data['url'],
+                        'cloud_id' => $data['cloud_id'],
+                        'restaurant_id' => $restaurantId
+                    ];
+                }
+            }
             $summaryData['restaurant_id'] =  $restaurantId;
             $regulationData['restaurant_id'] = $restaurantId;
+            RestaurantImage::query()->insert($imageData);
             SummaryRestaurant::query()->create($summaryData);
             Regulation::query()->create($regulationData);
             Utilties::query()->create(
                 [
-                    'restaurant_id' => $restaurantId ,
+                    'restaurant_id' => $restaurantId,
                     'utilties' => json_encode($utilties)
                 ]
             );
@@ -156,7 +172,29 @@ class RestaurantService extends BaseService
 
     public function show($request, $id)
     {
-        $item = $this->query->where('id', $id)->with(['summaryRestaurant', 'regulations', 'utilties'])->first();
+        // Query with model
+        $item = $this->query
+            ->where('id', $id)
+            ->with(['summaryRestaurant' => function ($query) {
+                $query->select(['parking', 'restaurant_id', 'suitability', 'special_dish', 'space']);
+            }, 'regulations' => function ($query) {
+                $query->select(['booking_time', 'bill', 'deposit', 'endow', 'reception_time', 'service_charge', 'restaurant_id']);
+            }, 'utilties' => function ($query) {
+                $query->select(['utilties', 'restaurant_id']);
+            }, 'images' => function ($query) {
+                $query->select(['image', 'restaurant_id']);
+            }])
+            ->first();
+
+        // // Query with raw sql
+        // $item = DB::table('restaurants')
+        //         ->join('table_summary_restaurant','restaurants.id','=','table_summary_restaurant.restaurant_id')
+        //         ->join('table_regulations','restaurants.id','=','table_regulations.restaurant_id')
+        //         ->join('table_utilties','restaurants.id','=','table_utilties.restaurant_id')
+        //         ->select('restaurants.*','table_summary_restaurant.*','table_regulations.*','table_utilties.*')
+        //         ->where('restaurants.id', $id)
+        //         ->first();
+
         if (!$item) {
             return $this->sendError();
         }

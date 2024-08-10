@@ -2,33 +2,27 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
-class AccountSeeder extends Seeder {
-    
-    public function run(){
+class AccountSeeder extends Seeder
+{
+
+    public function run()
+    {
         $data = [
-            [
-                'name' => 'User',
-                'email' => 'user1005@gmail.com',
-                'password' => bcrypt("dungnguyen123"),
-                'role' => 0,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'name' => 'Admin',
-                'email' => 'adminfastgo5@gmail.com',
-                'password' => bcrypt("admin@123"),
-                'role' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
+            'name' => 'Manager Restaurant',
+            'email' => 'manager12@gmail.com',
+            'password' => Hash::make('admin@123'),
+            'role' => 3, // Alternate roles between 0 and 1
+            'created_at' => now(),
+            'updated_at' => now()
         ];
+
+        // Optional: Truncate the table if you want to start fresh
         // User::query()->truncate();
+
         User::query()->insert($data);
     }
 }

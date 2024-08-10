@@ -8,5 +8,5 @@ interface RestaurantInterface extends BaseInterface
 {
     public function store($data);
 
-    public function allCategory();
+    public function allOption();
 }

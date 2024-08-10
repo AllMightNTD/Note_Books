@@ -38,5 +38,5 @@ class AreaSeeder extends Seeder
         ];
         // User::query()->truncate();
         DB::table('area')->insert($data);
-    }
+    } 
 }

@@ -49,12 +49,12 @@ Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(func
         Route::prefix('key-value')->group(function () {
             Route::get('categories', [CategoryController::class, 'getAllCategoriesKeyValue']);
         });
-        Route::middleware(['role:admin'])->group(function () {
-            Route::apiResource('users', UserController::class);
+        Route::apiResource('users', UserController::class);
+        Route::middleware(['role:manager'])->group(function () {
             Route::get('restaurants', 'RestaurantController@index');
+            Route::get('restaurants/{id}', 'RestaurantController@show');
             Route::post('restaurants', 'RestaurantController@store');
             Route::post('restaurants/{id}/up-date', 'RestaurantController@update');
-            Route::get('restaurants/{id}', 'RestaurantController@show');
             Route::apiResource('file', FileController::class);
             Route::get('dishs', 'DishController@index');
             Route::post('dishs', 'DishController@store');

@@ -24,7 +24,8 @@ class RestaurantController extends BaseController
         return $this->service->update($request, $id);
     }
 
-    public function getAllRestaurantKeyValue(){
+    public function getAllRestaurantKeyValue()
+    {
         return $this->service->getAllRestaurantKeyValue();
     }
 }

@@ -20,6 +20,8 @@ class CheckRole
             return response()->json(['error' => 'You do not have permission to access.'], 403);
         } elseif ($role == 'user' && auth('api')->user()->role != 0) {
             return response()->json(['error' => 'You do not have permission to access.'], 403);
+        } elseif ($role == 'manager' && auth('api')->user()->role != 2) {
+            return response()->json(['error' => 'You do not have permission to access.'], 403);
         }
 
         return $next($request);

@@ -95,20 +95,38 @@ class DishService extends BaseService
         if ($category_id) {
             $this->query->where('category_id', $category_id);
         }
+        $this->query->whereHas('restaurant', function ($query) {
+            $query->where('create_by_user_id', auth('api')->user()->id);
+        });
     }
 
     public function applySorting()
     {
-        return $this->query->with(['images' => function ($query) {
-            $query->select(['image', 'dish_id']);
-        }]);
+        $this->query->with([
+            'images',
+            'category',
+            'restaurant',
+            'restaurant.summaryRestaurant' => function ($query) {
+                $query->select(['parking', 'restaurant_id', 'suitability', 'special_dish', 'space']);
+            },
+            'restaurant.regulations' => function ($query) {
+                $query->select(['booking_time', 'bill', 'deposit', 'endow', 'reception_time', 'service_charge', 'restaurant_id']);
+            },
+            'restaurant.utilties' => function ($query) {
+                $query->select(['utilties', 'restaurant_id']);
+            },
+            'restaurant.openingHours'
+        ]);
     }
 
     public function show($request, $id)
     {
         $item = $this->query->where('id', $id)
             ->with([
-                'images', 'category', 'restaurant', 'restaurant.summaryRestaurant' => function ($query) {
+                'images',
+                'category',
+                'restaurant',
+                'restaurant.summaryRestaurant' => function ($query) {
                     $query->select(['parking', 'restaurant_id', 'suitability', 'special_dish', 'space']);
                 },
                 'restaurant.regulations' => function ($query) {

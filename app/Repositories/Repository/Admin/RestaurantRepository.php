@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Repositories\Repository\Admin;
+
 use App\Models\Restaurant;
 use App\Repositories\Interfaces\RestaurantInterface;
 use Illuminate\Http\Request;
 
-class RestaurantRepository implements RestaurantInterface {
+class RestaurantRepository implements RestaurantInterface
+{
 
     protected $restaurant;
 
@@ -13,15 +16,19 @@ class RestaurantRepository implements RestaurantInterface {
         $this->restaurant = $restaurant;
     }
 
-    public function store($data){
-        return $this -> restaurant::query() -> insertGetId($data);
+    public function store($data)
+    {
+        return $this->restaurant::query()->insertGetId($data);
     }
 
-    public function show(Request $request, $id){
-        return $this -> restaurant::query()-> where('id', $id) -> first();
+    public function show(Request $request, $id)
+    {
+        return $this->restaurant::query()->where('id', $id)->first();
     }
 
-    public function allCategory(){
-        return $this -> restaurant -> get();
+    public function allOption()
+    {
+
+        return $this->restaurant->where('create_by_user_id', auth('api')->user()->id)->get();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Admin\Area;
 use App\Models\Admin\Dish;
 use App\Models\Admin\OpeningHour;
 use App\Models\Admin\Regulation;
@@ -21,7 +22,9 @@ class Restaurant extends Model
         'address',
         'contact_phone',
         'email',
-        'type_of_restaurant'
+        'type_of_restaurant',
+        'area_id',
+        'create_by_user_id'
     ];
 
     public function summaryRestaurant()
@@ -52,5 +55,15 @@ class Restaurant extends Model
     public function openingHours()
     {
         return $this->hasOne(OpeningHour::class, 'restaurant_id', 'id');
+    }
+
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'create_by_user_id', 'id');
+    }
+
+    public function area()
+    {
+        return $this->belongsTo(Area::class, 'area_id', 'id');
     }
 }

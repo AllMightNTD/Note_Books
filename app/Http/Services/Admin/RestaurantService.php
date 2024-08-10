@@ -31,9 +31,11 @@ class RestaurantService extends BaseService
 
     public function applySorting()
     {
-        return $this->query->with(['images' => function ($query) {
-            $query->select(['image', 'restaurant_id']);
-        }]);
+        $user = auth('api')->user();
+        return
+            $this->query->where('create_by_user_id', $user->id)->with(['images' => function ($query) {
+                $query->select(['image', 'restaurant_id']);
+            }, 'area']);
     }
     public function store(Request $request)
     {
@@ -90,20 +92,20 @@ class RestaurantService extends BaseService
     public function getAllRestaurantKeyValue()
     {
 
-        $categories = $this->restaurantRepo->allCategory();
-        $formattedCategories = [];
+        $options = $this->restaurantRepo->allOption();
+        $formattedOptions = [];
 
-        if ($categories->isNotEmpty()) {
-            foreach ($categories as $category) {
-                $formattedCategories[] = [
-                    "label" => $category->name,
-                    "value" => $category->id
+        if ($options->isNotEmpty()) {
+            foreach ($options as $option) {
+                $formattedOptions[] = [
+                    "label" => $option->name,
+                    "value" => $option->id
                 ];
             }
         }
 
         return [
-            'data' => $formattedCategories
+            'data' => $formattedOptions
         ];
     }
 
@@ -175,15 +177,21 @@ class RestaurantService extends BaseService
         // Query with model
         $item = $this->query
             ->where('id', $id)
-            ->with(['summaryRestaurant' => function ($query) {
-                $query->select(['parking', 'restaurant_id', 'suitability', 'special_dish', 'space']);
-            }, 'regulations' => function ($query) {
-                $query->select(['booking_time', 'bill', 'deposit', 'endow', 'reception_time', 'service_charge', 'restaurant_id']);
-            }, 'utilties' => function ($query) {
-                $query->select(['utilties', 'restaurant_id']);
-            }, 'images' => function ($query) {
-                $query->select(['image', 'restaurant_id']);
-            }])
+            ->with([
+                'summaryRestaurant' => function ($query) {
+                    $query->select(['parking', 'restaurant_id', 'suitability', 'special_dish', 'space']);
+                },
+                'regulations' => function ($query) {
+                    $query->select(['booking_time', 'bill', 'deposit', 'endow', 'reception_time', 'service_charge', 'restaurant_id']);
+                },
+                'utilties' => function ($query) {
+                    $query->select(['utilties', 'restaurant_id']);
+                },
+                'images' => function ($query) {
+                    $query->select(['image', 'restaurant_id']);
+                },
+                'area'
+            ])
             ->first();
 
         // // Query with raw sql

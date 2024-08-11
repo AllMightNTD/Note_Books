@@ -3,6 +3,7 @@
 namespace App\Http\Services\Admin;
 
 use App\Http\Services\BaseService;
+use App\Models\Admin\Category;
 use App\Models\Admin\Dish;
 use App\Models\Admin\DishImage;
 use App\Models\RestaurantImage;
@@ -141,8 +142,11 @@ class DishService extends BaseService
         $dishPropose = $this->query->where('category_id', $item->category_id)
             ->where('id', '!=', $id)
             ->get();
-
+        $mainImages = $item->images->first();
+        $remainingImages = $item->images->slice(1)->values();
+        $item['main_image'] = $mainImages;
         $item['dish_proposed'] = $dishPropose;
+        $item['remaining_images'] = $remainingImages;
         if (!$item) {
             return $this->sendError();
         }
@@ -151,5 +155,13 @@ class DishService extends BaseService
                 'data' => $item
             ]
         );
+    }
+
+    public function allDishHome($request)
+    {
+        $dishHome =  Category::query()->with(['dish', 'dish.images'])->get();
+        return [
+            'data' => $dishHome,
+        ];
     }
 }

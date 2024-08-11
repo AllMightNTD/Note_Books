@@ -40,6 +40,7 @@ Route::namespace('App\Http\Controllers\Api\User')->prefix('/user')->group(functi
 // Home
 Route::middleware(['auth:api'])->group(function () {
     Route::get('/dish-home/{id}', [DishHomeController::class, 'show']);
+    Route::get('/dish-home', [DishHomeController::class, 'allDishHome']);
 });
 
 // Admin

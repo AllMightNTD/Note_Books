@@ -4,6 +4,7 @@ namespace App\Models\Admin;
 
 use App\Models\Restaurant;
 use App\Models\Admin\DishImage;
+use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,6 +20,7 @@ class Dish extends Model
         'price_max',
         'category_id',
         'restaurant_id',
+        'sub_category_id'
     ];
 
     public $appends = ['thumbnail_origin', 'restaurant_name', 'category_name'];
@@ -57,5 +59,14 @@ class Dish extends Model
     public function images()
     {
         return $this->hasMany(DishImage::class, 'dish_id', 'id');
+    }
+
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategory::class, 'sub_category_id', 'id');
+    }
+    public function reservation()
+    {
+        return $this->hasOne(Reservation::class, 'dish_id', 'id');
     }
 }

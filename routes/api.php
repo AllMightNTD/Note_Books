@@ -6,9 +6,12 @@ use App\Http\Controllers\Api\User\DishUser;
 use App\Http\Controllers\Api\Admin\FileController;
 use App\Http\Controllers\Api\Admin\OpeningHourController;
 use App\Http\Controllers\Api\Admin\RestaurantController;
+use App\Http\Controllers\Api\Admin\SubCategoryController;
 use App\Http\Controllers\Api\User\RestaurantUserController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\DishHomeController;
+use App\Http\Controllers\Api\ReservationController;
+use App\Http\Controllers\AreaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +44,10 @@ Route::namespace('App\Http\Controllers\Api\User')->prefix('/user')->group(functi
 Route::middleware(['auth:api'])->group(function () {
     Route::get('/dish-home/{id}', [DishHomeController::class, 'show']);
     Route::get('/dish-home', [DishHomeController::class, 'allDishHome']);
+    Route::get('/area-all', [AreaController::class, 'index']);
+    Route::get('/search', [DishHomeController::class, 'searchDish']);
+    Route::post('/reservation', [ReservationController::class, 'store']);
+    Route::get('/reservation-history', [ReservationController::class, 'historyReservation']);
 });
 
 // Admin
@@ -49,6 +56,7 @@ Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(func
         Route::apiResource('categories', CategoryController::class);
         Route::prefix('key-value')->group(function () {
             Route::get('categories', [CategoryController::class, 'getAllCategoriesKeyValue']);
+            Route::get('sub_categories', [SubCategoryController::class, 'getAllSubCategories']);
         });
         Route::apiResource('users', UserController::class);
         Route::middleware(['role:manager'])->group(function () {

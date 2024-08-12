@@ -15,7 +15,13 @@ class Category extends Model
         'name'
     ];
 
-    public function dish(){
-        return $this -> hasMany(Dish::class , 'category_id' , 'id');
+    public function dish()
+    {
+        return $this->hasMany(Dish::class, 'category_id', 'id');
+    }
+
+    public function subCategory()
+    {
+        return $this->hasMany(SubCategory::class, 'category_id', 'id');
     }
 }

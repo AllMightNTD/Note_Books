@@ -24,7 +24,10 @@ class Restaurant extends Model
         'email',
         'type_of_restaurant',
         'area_id',
-        'create_by_user_id'
+        'create_by_user_id',
+        'has_birthday_services',
+        'has_discount',
+        'discount'
     ];
 
     public function summaryRestaurant()

@@ -42,6 +42,7 @@ class RestaurantService extends BaseService
         $imageData = [];
         // Restaurant
         $data = $request->only($this->model->getFillable());
+        $data['create_by_user_id'] = auth('api')->user()->id;
 
         // Tóm tắt chi tiết
         $summary = new SummaryRestaurant();
@@ -57,6 +58,10 @@ class RestaurantService extends BaseService
 
         DB::beginTransaction();
         try {
+            $data['has_discount'] = $data['has_discount'] === '1';
+            $data['has_birthday_services'] = $data['has_birthday_services'] === '1';
+            $data['discount'] = (int) $data['discount'];
+            $data['area_id'] = 1;
             $restaurantId = $this->restaurantRepo->store($data);
             if ($request->hasfile('files')) {
                 foreach ($request->file('files') as $file) {

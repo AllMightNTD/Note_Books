@@ -5,18 +5,20 @@ namespace App\Http\Services\Admin;
 use App\Http\Services\BaseService;
 use App\Models\Admin\Category;
 use App\Models\Admin\Dish;
+use App\Models\Admin\SubCategory;
 use App\Repositories\Interfaces\CategoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class CategoryService extends BaseService {
+class CategoryService extends BaseService
+{
 
     protected $categoryRepo;
 
     public function __construct(CategoryInterface $categoryRepo)
     {
-        $this -> categoryRepo = $categoryRepo;
+        $this->categoryRepo = $categoryRepo;
         parent::__construct();
     }
 
@@ -25,18 +27,19 @@ class CategoryService extends BaseService {
         $this->model = new Category();
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $data = $request->only($this->model->getFillable());
 
         DB::beginTransaction();
         try {
-            $this -> categoryRepo -> store($data);
+            $this->categoryRepo->store($data);
             DB::commit();
             return [];
         } catch (\Exception $e) {
-            Log::info($e -> getMessage());
+            Log::info($e->getMessage());
             DB::rollBack();
-            return $this -> errorResponse();
+            return $this->errorResponse();
         }
     }
 
@@ -57,12 +60,13 @@ class CategoryService extends BaseService {
         }
     }
 
-    public function getAllCategoriesKeyValue(){
+    public function getAllCategoriesKeyValue()
+    {
 
         $categories = $this->categoryRepo->allCategory();
         $formattedCategories = [];
 
-        if($categories->isNotEmpty()){
+        if ($categories->isNotEmpty()) {
             foreach ($categories as $category) {
                 $formattedCategories[] = [
                     "label" => $category->name,
@@ -76,16 +80,36 @@ class CategoryService extends BaseService {
         ];
     }
 
-    public function destroy(Request $request, $id, $isForceDelete = false){
+    public function destroy(Request $request, $id, $isForceDelete = false)
+    {
         $dish = Dish::whereHas('category', function ($q) use ($id) {
             $q->where('id', $id);
         })->exists();
-        if($dish){
-            return $this -> sendError('Đã tồn tại món ăn ứng với danh mục này , không thể xóa !!!' , [] , 403);
-        }else{
+        if ($dish) {
+            return $this->sendError('Đã tồn tại món ăn ứng với danh mục này , không thể xóa !!!', [], 403);
+        } else {
             $model = $this->query->findOrFail($id);
             $model->delete();
             return response()->json(['message' => 'Deleted successfully']);
         }
+    }
+
+    public function getAllSubCategories()
+    {
+        $subCategories = SubCategory::all();
+        $formattedCategories = [];
+
+        if ($subCategories->isNotEmpty()) {
+            foreach ($subCategories as $subCategory) {
+                $formattedCategories[] = [
+                    "label" => $subCategory->name,
+                    "value" => $subCategory->id
+                ];
+            }
+        }
+
+        return [
+            'data' =>  $formattedCategories
+        ];
     }
 }

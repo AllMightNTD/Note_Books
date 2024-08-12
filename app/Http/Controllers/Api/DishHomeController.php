@@ -17,4 +17,9 @@ class DishHomeController extends BaseController
     {
         return $this->service->allDishHome($request);
     }
+
+    public function searchDish(Request $request)
+    {
+        return $this->service->searchDish($request);
+    }
 }

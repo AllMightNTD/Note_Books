@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Admin\Dish;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,11 +30,11 @@ class Reservation extends Model
 
     public function dish()
     {
-        return $this->belongsTo(User::class, 'dish_id', 'id');
+        return $this->belongsTo(Dish::class, 'dish_id', 'id');
     }
 
     public function restaurant()
     {
-        return $this->belongsTo(User::class, 'restaurant_id', 'id');
+        return $this->belongsTo(Restaurant::class, 'restaurant_id', 'id');
     }
 }

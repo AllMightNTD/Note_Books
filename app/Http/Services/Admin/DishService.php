@@ -90,8 +90,12 @@ class DishService extends BaseService
     public function applyFilter()
     {
         $sub_category_id = $this->request->get('sub_category_id');
+        $category_id = $this->request->get('category_id');
         if ($sub_category_id) {
             $this->query->where('sub_category_id', $sub_category_id);
+        }
+        if ($category_id) {
+            $this->query->where('category_id', $category_id);
         }
         $this->query->whereHas('restaurant', function ($query) {
             $query->where('create_by_user_id', auth('api')->user()->id);
@@ -178,6 +182,7 @@ class DishService extends BaseService
         $dishDisCount = $this->query->whereHas('restaurant', function ($query) {
             $query->where('has_discount', 1);
         })->with(['restaurant', 'images'])->get();
+        \Log::info('restaurant' . $dishDisCount);
 
         return [
             'newly_created' => $recentlyRestaurant,

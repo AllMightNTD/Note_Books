@@ -25,8 +25,14 @@ class AuthRepository implements AuthInterface
 
     public function register(Request $request)
     {
-        $request->merge(['password' => Hash::make($request->password)]);
-        return $this->user::query()->create($request->all());
+        \Log::info('$request->manage_restaurant' . $request->manage_restaurant);
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->manage_restaurant == 1 ? 2 : 0,
+        ];
+        return $this->user::query()->create($data);
     }
 
     public function show(Request $request, $id)
@@ -34,7 +40,8 @@ class AuthRepository implements AuthInterface
         return $this->user::query()->where('id', $id)->with('information')->first();
     }
 
-    public function information($id){
-        return DB::table('information')->where('user_id' ,$id) ->first();
+    public function information($id)
+    {
+        return DB::table('information')->where('user_id', $id)->first();
     }
 }

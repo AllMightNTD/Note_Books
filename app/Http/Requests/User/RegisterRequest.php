@@ -27,6 +27,7 @@ class RegisterRequest extends BaseRequest
             'name' => 'required| unique:users,name',
             'email' => 'required|regex:/(.+)@(.+)\.(.+)/i|unique:users,email',
             'password' => 'required',
+            'manage_restaurant' => 'required'
         ];
     }
 

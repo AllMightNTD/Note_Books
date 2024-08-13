@@ -70,6 +70,9 @@ Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(func
             Route::get('dishs/{id}', 'DishController@show');
             Route::post('dishs/{id}/up-date', 'DishController@update');
             Route::apiResource('opening-hours', OpeningHourController::class);
+            Route::get('/reservation-history-manager', [ReservationController::class, 'historyReservationManager']);
+            Route::get('/reservation-history-manager/{id}', [ReservationController::class, 'historyReservationDetail']);
+            Route::put('/reservation-history-manager/{id}/up-date', [ReservationController::class, 'updateReservation']);
 
             Route::prefix('key-value')->group(function () {
                 Route::get('restaurants', [RestaurantController::class, 'getAllRestaurantKeyValue']);

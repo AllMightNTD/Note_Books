@@ -5,6 +5,7 @@ namespace App\Http\Services\Admin;
 use App\Http\Services\BaseService;
 use App\Models\Admin\Dish;
 use App\Models\Admin\DishImage;
+use App\Models\Restaurant;
 use App\Repositories\Interfaces\DishInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -81,7 +82,6 @@ class DishService extends BaseService
             DB::commit();
             return [];
         } catch (\Exception $e) {
-            Log::info($e->getMessage());
             DB::rollBack();
             return $this->errorResponse();
         }
@@ -97,9 +97,11 @@ class DishService extends BaseService
         if ($category_id) {
             $this->query->where('category_id', $category_id);
         }
-        $this->query->whereHas('restaurant', function ($query) {
-            $query->where('create_by_user_id', auth('api')->user()->id);
-        });
+        if (auth('api')->user()->role == 2) {
+            $this->query->whereHas('restaurant', function ($query) {
+                $query->where('create_by_user_id', auth('api')->user()->id);
+            });
+        }
     }
 
     public function applySorting()
@@ -125,28 +127,28 @@ class DishService extends BaseService
     {
         $userId = auth('api')->user()->id;
         $item =
-            $this->query->where('id', $id)
+            Restaurant::query()->where('id', $id)
             ->with([
                 'images',
                 'category',
-                'restaurant',
+                // 'dishs',
                 'reservation' => function ($query) use ($id, $userId) {
-                    $query->where('dish_id', $id)
-                        ->where('user_id', $userId);
+                    $query->where('user_id', $userId);
                 },
-                'restaurant.summaryRestaurant' => function ($query) {
+                'summaryRestaurant' => function ($query) {
                     $query->select(['parking', 'restaurant_id', 'suitability', 'special_dish', 'space']);
                 },
-                'restaurant.regulations' => function ($query) {
+                'regulations' => function ($query) {
                     $query->select(['booking_time', 'bill', 'deposit', 'endow', 'reception_time', 'service_charge', 'restaurant_id']);
                 },
-                'restaurant.utilties' => function ($query) {
+                'utilties' => function ($query) {
                     $query->select(['utilties', 'restaurant_id']);
                 },
-                'restaurant.openingHours'
+                'openingHours'
             ])->first();
-        $dishPropose = $this->query->where('category_id', $item->category_id)
+        $dishPropose = Restaurant::query()->where('category_id', $item->category_id)
             ->where('id', '!=', $id)
+            ->with(['images'])
             ->get();
         $mainImages = $item->images->first();
         $remainingImages = $item->images->slice(1)->values();
@@ -165,25 +167,11 @@ class DishService extends BaseService
 
     public function allDishHome($request)
     {
-        // Mới tạo gần đây
-        $recentlyRestaurant =
-            Dish::join('restaurants', 'dishs.restaurant_id', '=', 'restaurants.id')
-            ->orderBy('restaurants.created_at', 'desc')
-            ->take(10)
-            ->select('dishs.*') // Chọn các cột từ bảng dishes
-            ->with(['restaurant', 'images']) // Tải quan hệ restaurant nếu cần
-            ->get();
-        // Phù hợp tổ chức sinh nhật
-        $dishBirthday = $this->query->whereHas('restaurant', function ($query) {
-            $query->where('has_birthday_services', 1);
-        })->with(['restaurant', 'images'])->get();
-
+        $recentlyRestaurant = Restaurant::query()->with(['dishs', 'images'])->take(10)->get();
+        $dishBirthday =
+            Restaurant::query()->with(['dishs', 'images'])->where('has_birthday_services', 1)->get();
         // Đang giảm giá
-        $dishDisCount = $this->query->whereHas('restaurant', function ($query) {
-            $query->where('has_discount', 1);
-        })->with(['restaurant', 'images'])->get();
-        \Log::info('restaurant' . $dishDisCount);
-
+        $dishDisCount = Restaurant::query()->with(['dishs', 'images'])->where('has_discount', 1)->get();
         return [
             'newly_created' => $recentlyRestaurant,
             'birthday_services' => $dishBirthday,
@@ -196,9 +184,19 @@ class DishService extends BaseService
         $name = $request->get('search');
         $location = $request->get('location');
         $perPage = $request->get('per_page', 10);
-        if (!empty($name)) {
-            $this->query->where('name', 'like', '%' . $name . '%');
+
+        // Start the query
+        $query = Restaurant::query();
+
+        // Apply the search filter if 'name' is provided
+        if ($name && $name !== '') {
+            \Log::info('name: ' . $name);
+            $query->where('name', 'like', '%' . $name . '%');
         }
-        return $this->query->with(['images', 'restaurant'])->paginate($perPage);
+
+        // Paginate the results with related images and restaurant data
+        $results = $query->with(['images', 'restaurant'])->paginate($perPage);
+
+        return $results;
     }
 }

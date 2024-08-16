@@ -15,7 +15,6 @@ class Reservation extends Model
     protected $fillable = [
         'user_id',
         'restaurant_id',
-        'dish_id',
         'count_adult',
         'count_child',
         'date_order',
@@ -27,12 +26,6 @@ class Reservation extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
-
-    public function dish()
-    {
-        return $this->belongsTo(Dish::class, 'dish_id', 'id');
-    }
-
     public function restaurant()
     {
         return $this->belongsTo(Restaurant::class, 'restaurant_id', 'id');

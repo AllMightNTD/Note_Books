@@ -28,4 +28,9 @@ class RestaurantController extends BaseController
     {
         return $this->service->getAllRestaurantKeyValue();
     }
+
+    public function queryByCategory(Request $request)
+    {
+        return $this->service->queryByCategory($request);
+    }
 }

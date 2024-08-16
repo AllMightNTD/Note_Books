@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Admin\Area;
+use App\Models\Admin\Category;
 use App\Models\Admin\Dish;
 use App\Models\Admin\OpeningHour;
 use App\Models\Admin\Regulation;
@@ -27,7 +28,11 @@ class Restaurant extends Model
         'create_by_user_id',
         'has_birthday_services',
         'has_discount',
-        'discount'
+        'discount',
+        'category_id',
+        'price_max',
+        'price_min',
+        'sub_category_id'
     ];
 
     public function summaryRestaurant()
@@ -68,5 +73,20 @@ class Restaurant extends Model
     public function area()
     {
         return $this->belongsTo(Area::class, 'area_id', 'id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'id');
+    }
+
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class, 'restaurant_id', 'id');
+    }
+
+    public function reservation()
+    {
+        return $this->hasOne(Reservation::class, 'restaurant_id', 'id');
     }
 }

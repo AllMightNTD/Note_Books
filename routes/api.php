@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\DishHomeController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\PusherController;
+use App\Http\Controllers\SendMessage;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +50,12 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/search', [DishHomeController::class, 'searchDish']);
     Route::post('/reservation', [ReservationController::class, 'store']);
     Route::get('/reservation-history', [ReservationController::class, 'historyReservation']);
+    Route::get('restaurants', [RestaurantController::class, 'queryByCategory']);
+    Route::post('/send-message', [SendMessage::class, 'sendMessage']);
+    Route::get('/messages', [PusherController::class, 'index']);
+    Route::get('/broadcast', [PusherController::class, 'broadcast']);
+    Route::get('/receive', [PusherController::class, 'receive']);
+    Route::post('/user-update-reservation/{id}', [ReservationController::class, 'updateUserReservation']);
 });
 
 // Admin
@@ -65,7 +73,6 @@ Route::namespace('App\Http\Controllers\Api\Admin')->prefix('/admin')->group(func
             Route::post('restaurants', 'RestaurantController@store');
             Route::post('restaurants/{id}/up-date', 'RestaurantController@update');
             Route::apiResource('file', FileController::class);
-            Route::get('dishs', 'DishController@index');
             Route::post('dishs', 'DishController@store');
             Route::get('dishs/{id}', 'DishController@show');
             Route::post('dishs/{id}/up-date', 'DishController@update');

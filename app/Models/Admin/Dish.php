@@ -46,16 +46,6 @@ class Dish extends Model
         }
     }
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class, 'category_id', 'id');
-    }
-
-    public function restaurant()
-    {
-        return $this->belongsTo(Restaurant::class, 'restaurant_id', 'id');
-    }
-
     public function images()
     {
         return $this->hasMany(DishImage::class, 'dish_id', 'id');
@@ -64,9 +54,5 @@ class Dish extends Model
     public function subCategory()
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_id', 'id');
-    }
-    public function reservation()
-    {
-        return $this->hasOne(Reservation::class, 'dish_id', 'id');
     }
 }

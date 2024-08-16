@@ -32,6 +32,9 @@ class RestaurantService extends BaseService
     public function applySorting()
     {
         $user = auth('api')->user();
+        if ($this->request->get('key_word')) {
+            $this->query->where('name', 'like', '%' . $this->request->get('key_word') . '%');
+        }
         return
             $this->query->where('create_by_user_id', $user->id)->with(['images' => function ($query) {
                 $query->select(['image', 'restaurant_id']);
@@ -42,6 +45,7 @@ class RestaurantService extends BaseService
         $imageData = [];
         // Restaurant
         $data = $request->only($this->model->getFillable());
+        \Log::info('data' . $data);
         $data['create_by_user_id'] = auth('api')->user()->id;
 
         // Tóm tắt chi tiết
@@ -121,6 +125,7 @@ class RestaurantService extends BaseService
         $summaryModel = $request->only($summary->getFillable());
         // Restaurant
         $data = $request->only($this->model->getFillable());
+        \Log::info('data' . json_encode($data));
         $restaurant = $this->query->find($id);
         $cloudIdOld = $request->cloud_id_old;
         // Quy định
@@ -133,13 +138,15 @@ class RestaurantService extends BaseService
 
         DB::beginTransaction();
         try {
-            if ($cloudIdOld && $request->file('file')) {
-                $this->deleteImage($cloudIdOld);;
-            }
-            if ($request->file('file')) {
-                $file = $this->uploadImage($request->file('file'));
-                $data['thumb_nail'] = $file['url'];
-                $data['cloud_id'] = $file['cloud_id'];
+            if ($request->hasfile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $data = $this->uploadImage($file);
+                    $imageData[] = [
+                        'image' => $data['url'],
+                        'cloud_id' => $data['cloud_id'],
+                        'restaurant_id' => $restaurant->id
+                    ];
+                }
             }
 
             $restaurant->fill($data);
@@ -217,5 +224,38 @@ class RestaurantService extends BaseService
                 'data' => $item
             ]
         );
+    }
+
+    public function queryByCategory(Request $request)
+    {
+        $sub_category_id = $request->get('sub_category_id');
+        $category_id = $request->get('category_id');
+
+        // Apply filters if provided
+        if ($sub_category_id) {
+            $this->query->where('sub_category_id', $sub_category_id);
+        }
+        if ($category_id) {
+            $this->query->where('category_id', $category_id);
+        }
+
+        // Paginate the results, with 10 items per page (you can adjust the number as needed)
+        $perPage = 10;
+        $results = $this->query->with([
+            'images',
+            'category',
+            'summaryRestaurant' => function ($query) {
+                $query->select(['parking', 'restaurant_id', 'suitability', 'special_dish', 'space']);
+            },
+            'regulations' => function ($query) {
+                $query->select(['booking_time', 'bill', 'deposit', 'endow', 'reception_time', 'service_charge', 'restaurant_id']);
+            },
+            'utilties' => function ($query) {
+                $query->select(['utilties', 'restaurant_id']);
+            },
+            'openingHours'
+        ])->paginate($perPage);
+
+        return $results;
     }
 }
